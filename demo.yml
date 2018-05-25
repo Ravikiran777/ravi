@@ -1,0 +1,32 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  
+  - name: Create task definition
+    ecs_taskdefinition:
+      containers:
+      - name: httpd
+        cpu: 10
+        essential: true
+        image: "httpd:2.4"
+        memory: 300
+        portMappings:
+        - containerPort: 81
+          hostPort: 80
+      - name: ubuntu
+        command:
+          - >
+            /bin/sh -c "while true; do echo '<html><head><title>Amazon ECS Sample App</title></head><body><div><h1>Amazon ECS Sample App</h1><h2>Congratulations!
+            </h2><p>Your application is now running on a container in Amazon ECS.</p>' > top; /bin/date > date ; echo '</div></body></html>' > bottom;
+            cat top date bottom > /usr/local/apache2/htdocs/index.html ; sleep 1; done"
+        cpu: 10
+        entryPoint:
+        - sh
+        - "-c"
+        essential: false
+        image: ubuntu
+        memory: 200
+      family: my-ansible-task-defination
+      state: present
+    register: task_output
